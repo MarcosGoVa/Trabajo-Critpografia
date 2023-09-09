@@ -101,8 +101,32 @@ class App:
     def registrar_data(self):
         self.frame_menu.pack_forget()
         # TODO crear un formulario para registrar una nueva medida
+        self.frame_registrar = tk.Frame(self.ventana)
+        self.frame_registrar.pack()
+
+        self.label_new_day = tk.Label(self.frame_registrar, text="Día:")
+        self.label_new_medition = tk.Label(self.frame_registrar, text="Nivel de azúcar:")
+
+        self.entry_new_day = tk.Entry(self.frame_registrar)
+        self.entry_new_medition = tk.Entry(self.frame_registrar)
+
+        self.btn_new_registration = tk.Button(self.frame_registrar, text="Introducir", command=self.exit_registrar_data)
+
+        self.label_new_day.pack()
+        self.entry_new_day.pack()
+        self.label_new_medition.pack()
+        self.entry_new_medition.pack()
+        self.btn_new_registration.pack()
         
-        
+    def exit_registrar_data(self):
+        new_day = self.entry_new_day.get()
+        new_medition = self.entry_new_medition.get()
+        Usuario.new_medition_app(self.user_info,new_day,new_medition)
+        for widget in self.frame_registrar.winfo_children():
+            widget.destroy
+        self.frame_registrar.destroy()
+        self.show_menu(self.user_info)
+
 
     def consultar(self):
         self.frame_menu.pack_forget()
