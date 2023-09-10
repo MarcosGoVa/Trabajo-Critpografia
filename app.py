@@ -211,11 +211,15 @@ class App:
             widget.destroy()
         self.frame_consulta.destroy()
 
-        fechas_ordenadas = sorted(self.user_info["meditions"].keys(), key=lambda x: datetime.strptime(x, "%d/%m/%Y"))
+        medition_days = self.user_info["meditions"].keys()
+
+        fechas_ordenadas = sorted(medition_days, key=lambda x: datetime.strptime(x, "%d/%m/%Y"))
         self.frame_graph = tk.Frame(self.ventana)
         self.frame_graph.pack()
 
         # BOTONES
+        combobox_fecha = ttk.Combobox(self.frame_menu, state="readonly", values=list(medition_days))
+        combobox_fecha.pack()
         btn_cerrar_sesion = tk.Button(self.frame_graph, text="Cerrar Sesión", command=lambda: self.logout_from(self.frame_graph))
         btn_go_home = tk.Button(self.frame_graph, text="Volver al menú", command=lambda: self.menu_from(self.frame_graph))
 
