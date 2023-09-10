@@ -1,8 +1,12 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
+from tkcalendar import Calendar
 from usuario import Usuario  
 from datetime import datetime
 
+
+# TODO cambiar titulos de pestaña
+# TODO modulos de la app
 class App:
     def __init__(self, ventana):
         self.ventana = ventana
@@ -52,12 +56,24 @@ class App:
         contrasena = self.entry_password.get()
 
         # Llama a tu función de registro desde la clase Usuario
-        exito = Usuario.register_app(usuario, contrasena)
+        registro_feedback = Usuario.register_app(usuario, contrasena)
 
-        if exito:
-            tk.messagebox.showinfo("Registro", "Registro exitoso.")
-        else:
+        if registro_feedback == -1:
+            tk.messagebox.showerror("Registro", """La contraseña no es válida. Requerimientos de contraseña: 
+                                    \n- Longitud: 8-32 caracteres.
+                                    \n- Al menos 1 mayúscula.
+                                    \n- Al menos 1 mayúscula.
+                                    \n- Al menos 1 minúscula.
+                                    \n- Al menos 1 carácter especial: ~!@#$%^*()_-+={}[]|:;?
+                                    \n- Al menos 1 número. """)
+        elif registro_feedback == -2:
+            tk.messagebox.showerror("Registro", """El nombre de usuario no es válido. Requerimientos de nombre de usuario: 
+                                    \n- Longitud: 4-32 caracteres. 
+                                    \n- Solo letras (mayúsculas o minúsculas), números y guiones bajos.""")
+        elif registro_feedback == -3:
             tk.messagebox.showerror("Registro", "El usuario ya existe.")
+        else:
+            tk.messagebox.showinfo("Registro", "Usuario registrado correctamente.")
         
         self.entry_usuario.delete(0, tk.END)
         self.entry_password.delete(0, tk.END)
@@ -79,7 +95,7 @@ class App:
 
         # Botones
         btn_cerrar_sesion = tk.Button(self.frame_menu, text="Cerrar Sesión", command=self.cerrar_sesion)
-        btn_introducir_data = tk.Button(self.frame_menu, text="Introducir nueva medicion", command=self.registrar_data)
+        btn_introducir_data = tk.Button(self.frame_menu, text="Introducir nueva medicion", command=self.introducir_data)
         btn_consulta = tk.Button(self.frame_menu, text="Consultar mediciones", command=self.consultar)
         
         # Mostrar en el frame en pantalla
@@ -98,16 +114,22 @@ class App:
         self.entry_usuario.delete(0, tk.END)
         self.entry_password.delete(0, tk.END)
 
-    def registrar_data(self):
+
+    # TODO check if empty fields
+    def introducir_data(self):
         self.frame_menu.pack_forget()
         # TODO crear un formulario para registrar una nueva medida
         self.frame_registrar = tk.Frame(self.ventana)
         self.frame_registrar.pack()
 
+        self.cal = None
+
         self.label_new_day = tk.Label(self.frame_registrar, text="Día:")
         self.label_new_medition = tk.Label(self.frame_registrar, text="Nivel de azúcar:")
 
         self.entry_new_day = tk.Entry(self.frame_registrar)
+        # Mostrar el calendario al hacer click en el campo de entrada
+        self.entry_new_day.bind("<FocusIn>", self.mostrar_calendario)
         self.entry_new_medition = tk.Entry(self.frame_registrar)
 
         self.btn_new_registration = tk.Button(self.frame_registrar, text="Introducir", command=self.exit_registrar_data)
@@ -117,16 +139,45 @@ class App:
         self.label_new_medition.pack()
         self.entry_new_medition.pack()
         self.btn_new_registration.pack()
+
+    def mostrar_calendario(self, event):
+
+        if self.cal:
+            return
+
+        fecha_actual = datetime.now().date()
+
+        self.cal = Calendar(self.frame_registrar, selectmode="day", date_pattern="dd/mm/yyyy",
+         year=fecha_actual.year, month=fecha_actual.month, day=fecha_actual.day)
+        self.cal.pack()
+
+        # Configurar la acción al seleccionar una fecha en el calendario
+        self.cal.bind("<<CalendarSelected>>", self.actualizar_entry_day)
+    
+    def actualizar_entry_day(self, event):
+        fecha_seleccionada = self.cal.get_date()
+        self.entry_new_day.delete(0, tk.END)
+        self.entry_new_day.insert(0, fecha_seleccionada)
+
         
+    # TODO: podria reutilizarse el menu_from?
     def exit_registrar_data(self):
         new_day = self.entry_new_day.get()
         new_medition = self.entry_new_medition.get()
-        Usuario.new_medition_app(self.user_info,new_day,new_medition)
-        for widget in self.frame_registrar.winfo_children():
-            widget.destroy
-        self.frame_registrar.destroy()
-        self.show_menu(self.user_info)
+        error = Usuario.new_medition_app(self.user_info,new_day,new_medition)
 
+        if error == -1:
+            tk.messagebox.showerror("Registro", "La fecha no es válida.\n Formato: DD/MM/YYYY")
+        elif error == -2:
+            tk.messagebox.showerror("Registro", "La medición no es válida.\n Debe ser un número entre 0 y 1000")
+        else:
+            tk.messagebox.showinfo("Registro", "Medición guardada correctamente.")
+            for widget in self.frame_registrar.winfo_children():
+                widget.destroy
+            self.frame_registrar.destroy()
+            self.show_menu(self.user_info)
+    
+    
 
     def consultar(self):
         self.frame_menu.pack_forget()

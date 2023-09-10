@@ -1,5 +1,9 @@
 import json
 from file_manager import FileManager
+from data.password import Password
+from data.username import Username
+from data.sugar import Sugar
+from data.date import Date
 
 
 
@@ -11,7 +15,8 @@ class Usuario:
     @classmethod
     def register(cls):
         user = str(input("-Introduzca su usuario: "))
-        password = str(input("-Introduzca su contraseña: "))
+        password_in = str(input("-Introduzca su contraseña: "))
+        password = Password(password_in)
         file_manager = FileManager()
         
         database = file_manager.load("database.json")
@@ -32,17 +37,29 @@ class Usuario:
 
 
     @classmethod
-    def register_app(cls, user, password):
+    def register_app(cls, user_in, password_in) -> int:
         file_manager = FileManager()
         
         database = file_manager.load("database.json")
+
+        # Comprobamos que la contraseña sea válida -> Decision de diseño antes del bucle para ahorrar
+        try:
+            password = Password(password_in).value
+        except:
+            return -1
             
+        try:
+            user = Username(user_in).value
+        except:
+            return -2
+        
         #Buscamos si el usuario ya está registrado
         for i in database:
             if i["userid"] == user:
                 print("-El usuario ya está registrado")
-                return False
+                return -3
         
+
         #Si no está registrado, lo registramos
         database.append({"userid":user,"password":password,"meditions":{}})
         
@@ -96,7 +113,8 @@ class Usuario:
         new_medition = str(input("-Introduzca el nivel de azucar: "))
         new_day = str(input("-Introduzca el dia en formato DD/MM/YYYY: "))
 
-        # TODO: Validar que el dia sea correcto, que no se repita y que el nivel de azucar sea correcto
+          
+
         
         user_new_data["meditions"][new_day] = new_medition
         
@@ -116,6 +134,18 @@ class Usuario:
     @classmethod
     def new_medition_app(cls, user_new_data,new_day,new_medition):
         user_new_data["meditions"][new_day] = new_medition
+
+        # TODO: Validar que el dia sea correcto, que no se repita y que el nivel de azucar sea correcto
+
+        try:
+            new_day = Date(new_day).value
+        except:
+            return -1
+
+        try:
+            new_medition = Sugar(new_medition).value
+        except:
+            return -2
         
         file_manager = FileManager()
 

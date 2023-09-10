@@ -3,7 +3,9 @@
     "userid": "1",
     "password": "1",
     "meditions": {
-      "12/08/2004": "333"
+      "12/08/2004": "333",
+      "09/03/2025": "140",
+      "13/09/2023": "111"
     }
   },
   {
@@ -12,5 +14,20 @@
     "meditions": {
       "03/12/2012": "123"
     }
+  },
+  {
+    "userid": "javi",
+    "password": "hola",
+    "meditions": {}
+  },
+  {
+    "userid": "123",
+    "password": "hola",
+    "meditions": {}
+  },
+  {
+    "userid": "123312",
+    "password": "a",
+    "meditions": {}
   }
 ]
