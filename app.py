@@ -160,7 +160,6 @@ class App:
         self.entry_new_day.insert(0, fecha_seleccionada)
 
         
-    # TODO: podria reutilizarse el menu_from?
     def exit_registrar_data(self):
         new_day = self.entry_new_day.get()
         new_medition = self.entry_new_medition.get()
@@ -172,11 +171,7 @@ class App:
             tk.messagebox.showerror("Registro", "La medición no es válida.\n Debe ser un número entre 0 y 1000")
         else:
             tk.messagebox.showinfo("Registro", "Medición guardada correctamente.")
-            for widget in self.frame_registrar.winfo_children():
-                widget.destroy
-            self.frame_registrar.destroy()
-            self.show_menu(self.user_info)
-    
+            self.menu_from(self.frame_registrar)
     
 
     def consultar(self):
