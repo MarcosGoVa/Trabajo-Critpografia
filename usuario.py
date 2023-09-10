@@ -113,9 +113,6 @@ class Usuario:
         new_medition = str(input("-Introduzca el nivel de azucar: "))
         new_day = str(input("-Introduzca el dia en formato DD/MM/YYYY: "))
 
-          
-
-        
         user_new_data["meditions"][new_day] = new_medition
         
         file_manager = FileManager()
@@ -133,7 +130,7 @@ class Usuario:
     
     @classmethod
     def new_medition_app(cls, user_new_data,new_day,new_medition):
-        user_new_data["meditions"][new_day] = new_medition
+        
 
         # TODO: Validar que el dia sea correcto, que no se repita y que el nivel de azucar sea correcto
 
@@ -147,6 +144,8 @@ class Usuario:
         except:
             return -2
         
+        user_new_data["meditions"][new_day] = new_medition
+
         file_manager = FileManager()
 
         database = file_manager.load("database.json")

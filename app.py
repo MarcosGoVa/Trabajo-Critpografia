@@ -219,7 +219,6 @@ class App:
         btn_cerrar_sesion = tk.Button(self.frame_graph, text="Cerrar Sesión", command=lambda: self.logout_from(self.frame_graph))
         btn_go_home = tk.Button(self.frame_graph, text="Volver al menú", command=lambda: self.menu_from(self.frame_graph))
 
-        # TODO NO SE ORDENAN BIEN LAS FECHAS
         fig, ax = plt.subplots(figsize=(8, 6))
         ax.plot(fechas_ordenadas, self.user_info["meditions"].values(), marker='o', linestyle='-', color='r')
         ax.set_title('Azúcar en sangre gr/ml')
