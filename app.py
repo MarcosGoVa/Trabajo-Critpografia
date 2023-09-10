@@ -1,7 +1,11 @@
 import tkinter as tk
+import matplotlib.pyplot as plt
 from tkinter import messagebox, ttk
 from tkcalendar import Calendar
 from usuario import Usuario  
+from datetime import datetime
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from datetime import datetime
 
 
@@ -118,7 +122,7 @@ class App:
     # TODO check if empty fields
     def introducir_data(self):
         self.frame_menu.pack_forget()
-        # TODO crear un formulario para registrar una nueva medida
+        
         self.frame_registrar = tk.Frame(self.ventana)
         self.frame_registrar.pack()
 
@@ -180,26 +184,56 @@ class App:
         self.frame_consulta = tk.Frame(self.ventana)
         self.frame_consulta.pack()
 
+        # TABLA
         fechas_ordenadas = sorted(self.user_info["meditions"].keys(), key=lambda x: datetime.strptime(x, "%d/%m/%Y"))
-        
-        tabla = ttk.Treeview(self.frame_consulta, columns=("Fecha", "Valor"), padding=[-395,0,0,0])
+        self.tabla = ttk.Treeview(self.frame_consulta, columns=("Fecha", "Valor"), padding=[-395,0,0,0])
         # Configurar las columnas
-        tabla.heading("#1", text="Fecha", anchor=tk.CENTER)
-        tabla.heading("#2", text="Valor", anchor=tk.CENTER)
-
+        self.tabla.heading("#1", text="Fecha", anchor=tk.CENTER)
+        self.tabla.heading("#2", text="Valor", anchor=tk.CENTER)
         # Ajustar el ancho de las columnas
-        tabla.column("#1", width=100, anchor=tk.CENTER)
-        tabla.column("#2", width=50, anchor=tk.CENTER)
+        self.tabla.column("#1", width=100, anchor=tk.CENTER)
+        self.tabla.column("#2", width=50, anchor=tk.CENTER)
+        # Llenar la tabla con los datos
+        self.llenar_tabla(self.tabla, fechas_ordenadas)
 
-        self.llenar_tabla(tabla, fechas_ordenadas)
+        # BOTONES
         btn_cerrar_sesion = tk.Button(self.frame_consulta, text="Cerrar Sesión", command=lambda: self.logout_from(self.frame_consulta))
         btn_go_home = tk.Button(self.frame_consulta, text="Volver al menú", command=lambda: self.menu_from(self.frame_consulta))
-        
+        btn_mostrar_grafico = tk.Button(self.frame_consulta, text="Mostrar Gráfico", command=lambda: self.mostrar_grafico())
 
-        tabla.pack()
+        self.tabla.pack()
+        btn_mostrar_grafico.pack()
         btn_cerrar_sesion.pack()
         btn_go_home.pack()
 
+    def mostrar_grafico(self):
+        for widget in self.frame_consulta.winfo_children():
+            widget.destroy()
+        self.frame_consulta.destroy()
+
+        fechas_ordenadas = sorted(self.user_info["meditions"].keys(), key=lambda x: datetime.strptime(x, "%d/%m/%Y"))
+        self.frame_graph = tk.Frame(self.ventana)
+        self.frame_graph.pack()
+
+        # BOTONES
+        btn_cerrar_sesion = tk.Button(self.frame_graph, text="Cerrar Sesión", command=lambda: self.logout_from(self.frame_graph))
+        btn_go_home = tk.Button(self.frame_graph, text="Volver al menú", command=lambda: self.menu_from(self.frame_graph))
+
+        # TODO NO SE ORDENAN BIEN LAS FECHAS
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.plot(fechas_ordenadas, self.user_info["meditions"].values(), marker='o', linestyle='-', color='r')
+        ax.set_title('Azúcar en sangre gr/ml')
+        ax.set_xlabel('Fechas')
+        ax.set_ylabel('gr/ml')
+
+        # Rotar las etiquetas del eje x para una mejor visualización
+        plt.xticks(rotation=45)
+
+        canvas = FigureCanvasTkAgg(fig, master=self.frame_graph)
+        canvas.get_tk_widget().pack()
+
+        btn_cerrar_sesion.pack()
+        btn_go_home.pack()
 
     def logout_from(self, current_place):
         for widget in current_place.winfo_children():
