@@ -15,6 +15,7 @@ class App:
     def __init__(self, ventana):
         self.ventana = ventana
         self.ventana.title("Aplicación de Registro y Login")
+        self.ventana.state("zoomed")
 
         self.frame_login = tk.Frame(ventana)
         self.frame_login.pack()
@@ -145,7 +146,6 @@ class App:
         self.btn_new_registration.pack()
 
     def mostrar_calendario(self, event):
-
         if self.cal:
             return
 
@@ -167,15 +167,17 @@ class App:
     def exit_registrar_data(self):
         new_day = self.entry_new_day.get()
         new_medition = self.entry_new_medition.get()
-        error = Usuario.new_medition_app(self.user_info,new_day,new_medition)
-
-        if error == -1:
-            tk.messagebox.showerror("Registro", "La fecha no es válida.\n Formato: DD/MM/YYYY")
-        elif error == -2:
-            tk.messagebox.showerror("Registro", "La medición no es válida.\n Debe ser un número entre 0 y 1000")
+        if len(new_day) != 0 and len(new_medition) != 0:
+            error = Usuario.new_medition_app(self.user_info,new_day,new_medition)
+            if error == -1:
+                tk.messagebox.showerror("Registro", "La fecha no es válida.\n Formato: DD/MM/YYYY")
+            elif error == -2:
+                tk.messagebox.showerror("Registro", "La medición no es válida.\n Debe ser un número entre 0 y 1000")
+            else:
+                tk.messagebox.showinfo("Registro", "Medición guardada correctamente.")
+                self.menu_from(self.frame_registrar)
         else:
-            tk.messagebox.showinfo("Registro", "Medición guardada correctamente.")
-            self.menu_from(self.frame_registrar)
+            tk.messagebox.showerror("Registro", "Por favor, rellene todos los campos.")
     
 
     def consultar(self):
@@ -203,40 +205,48 @@ class App:
 
         self.tabla.pack()
         btn_mostrar_grafico.pack()
-        btn_cerrar_sesion.pack()
         btn_go_home.pack()
+        btn_cerrar_sesion.pack()
+        
 
     def mostrar_grafico(self):
         for widget in self.frame_consulta.winfo_children():
             widget.destroy()
         self.frame_consulta.destroy()
 
+        fechas_ordenadas, medidas_ordenadas = self.sort_meditions()
+
+        self.create_graph(fechas_ordenadas, medidas_ordenadas)
+
+        # BOTONES
+        self.graph_buttons(fechas_ordenadas, medidas_ordenadas)
+
+    def graph_buttons(self, fechas_ordenadas, medidas_ordenadas):
+        btn_cerrar_sesion = tk.Button(self.frame_graph, text="Cerrar Sesión", command=lambda: self.logout_from(self.frame_graph))
+        btn_go_home = tk.Button(self.frame_graph, text="Volver al menú", command=lambda: self.menu_from(self.frame_graph))
+        btn_last_year = tk.Button(self.frame_graph, text="Último año", command=lambda: self.graph_last_year(fechas_ordenadas,medidas_ordenadas))
+        btn_last_6_months = tk.Button(self.frame_graph, text="Últimos 6 meses", command=lambda: self.graph_last_6_months(fechas_ordenadas,medidas_ordenadas))
+        btn_last_month = tk.Button(self.frame_graph, text="Último mes", command=lambda: self.graph_last_month(fechas_ordenadas,medidas_ordenadas))
+        btn_last_week = tk.Button(self.frame_graph, text="Última semana", command=lambda: self.graph_last_week(fechas_ordenadas,medidas_ordenadas))
+
+
+        btn_last_year.pack()
+        btn_last_6_months.pack()
+        btn_last_month.pack()
+        btn_last_week.pack()
+        btn_cerrar_sesion.pack()
+        btn_go_home.pack()
+
+    def sort_meditions(self):
         medition_days = self.user_info["meditions"].keys()
 
         fechas_ordenadas = sorted(medition_days, key=lambda x: datetime.strptime(x, "%d/%m/%Y"))
+        medidas_ordenadas = []
+        for fecha in fechas_ordenadas:
+            medidas_ordenadas.append(self.user_info["meditions"][fecha])
         self.frame_graph = tk.Frame(self.ventana)
         self.frame_graph.pack()
-
-        # BOTONES
-        combobox_fecha = ttk.Combobox(self.frame_menu, state="readonly", values=list(medition_days))
-        combobox_fecha.pack()
-        btn_cerrar_sesion = tk.Button(self.frame_graph, text="Cerrar Sesión", command=lambda: self.logout_from(self.frame_graph))
-        btn_go_home = tk.Button(self.frame_graph, text="Volver al menú", command=lambda: self.menu_from(self.frame_graph))
-
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.plot(fechas_ordenadas, self.user_info["meditions"].values(), marker='o', linestyle='-', color='r')
-        ax.set_title('Azúcar en sangre gr/ml')
-        ax.set_xlabel('Fechas')
-        ax.set_ylabel('gr/ml')
-
-        # Rotar las etiquetas del eje x para una mejor visualización
-        plt.xticks(rotation=45)
-
-        canvas = FigureCanvasTkAgg(fig, master=self.frame_graph)
-        canvas.get_tk_widget().pack()
-
-        btn_cerrar_sesion.pack()
-        btn_go_home.pack()
+        return fechas_ordenadas,medidas_ordenadas
 
     def logout_from(self, current_place):
         for widget in current_place.winfo_children():
@@ -256,8 +266,76 @@ class App:
             valor = self.user_info["meditions"][fecha]
             table.insert("", "end", values = (fecha, valor))
 
+    def graph_last_year(self,days,values):
+        for widget in self.frame_graph.winfo_children():
+            widget.destroy()
+        fecha_actual = datetime.now()
+        last_year = {}
+        for i in range(len(days)):
+            dias_diferencia = (fecha_actual - datetime.strptime(days[i], "%d/%m/%Y")).days
+            if dias_diferencia <= 365 and dias_diferencia > 0:
+                last_year[days[i]] = values[i]
+
+        self.create_graph(last_year.keys(), last_year.values())
+        self.graph_buttons(days, values)
+        
+
+    def graph_last_6_months(self,days,values):
+        for widget in self.frame_graph.winfo_children():
+            widget.destroy()
+        fecha_actual = datetime.now()
+        last_year = {}
+        for i in range(len(days)):
+            dias_diferencia = (fecha_actual - datetime.strptime(days[i], "%d/%m/%Y")).days
+            if dias_diferencia <= 6*31 and dias_diferencia > 0:
+                last_year[days[i]] = values[i]
+
+        self.create_graph(last_year.keys(), last_year.values())
+        self.graph_buttons(days, values)
+        
+  
+    def graph_last_month(self,days,values):
+        for widget in self.frame_graph.winfo_children():
+            widget.destroy()
+        fecha_actual = datetime.now()
+        last_year = {}
+        for i in range(len(days)):
+            dias_diferencia = (fecha_actual - datetime.strptime(days[i], "%d/%m/%Y")).days
+            if dias_diferencia <= 31 and dias_diferencia > 0:
+                last_year[days[i]] = values[i]
+
+        self.create_graph(last_year.keys(), last_year.values())
+        self.graph_buttons(days, values)
+        
   
 
+    def graph_last_week(self,days,values):
+        for widget in self.frame_graph.winfo_children():
+            widget.destroy()
+        fecha_actual = datetime.now()
+        last_year = {}
+        for i in range(len(days)):
+            dias_diferencia = (fecha_actual - datetime.strptime(days[i], "%d/%m/%Y")).days
+            if dias_diferencia <= 7 and dias_diferencia > 0:
+                last_year[days[i]] = values[i]
+
+        self.create_graph(last_year.keys(), last_year.values())
+        self.graph_buttons(days, values)
+        
+  
+
+    def create_graph(self,days, values):
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.plot(days, values, marker='o', linestyle='-', color='r')
+        ax.set_title('Azúcar en sangre gr/ml.')
+        ax.set_xlabel('Fechas')
+        ax.set_ylabel('gr/ml')
+
+        # Rotar las etiquetas del eje x para una mejor visualización
+        plt.xticks(rotation=30)
+
+        self.canvas = FigureCanvasTkAgg(fig, master=self.frame_graph)
+        self.canvas.get_tk_widget().pack()
 
 if __name__ == "__main__":
     #ventana

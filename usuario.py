@@ -143,8 +143,11 @@ class Usuario:
             new_medition = Sugar(new_medition).value
         except:
             return -2
-        
+
+        print(new_day) 
         user_new_data["meditions"][new_day] = new_medition
+        print(user_new_data["meditions"])
+
 
         file_manager = FileManager()
 

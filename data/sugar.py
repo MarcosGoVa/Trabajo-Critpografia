@@ -15,4 +15,4 @@ class Sugar(Attribute):
         if sugar_level >= 1000:
             raise ValueError("sugar data is not valid")
         
-        return value
+        return sugar_level

@@ -11,8 +11,9 @@ class Date(Attribute):
     
     def _validate(self, value):
         format = "%d/%m/%Y"
-
         try:
             datetime.strptime(value, format)
         except ValueError:
             raise ValueError("Incorrect data format, should be DD-MM-YYYY")
+    
+        return value
