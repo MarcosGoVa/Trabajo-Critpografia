@@ -9,13 +9,14 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from datetime import datetime
 
 
-# TODO cambiar titulos de pestaña
-# TODO modulos de la app
+# TODO cambiar titulos de pestañas 
+# TODO modular codigo?
 class App:
     def __init__(self, ventana):
         self.ventana = ventana
         self.ventana.title("Aplicación de Registro y Login")
         self.ventana.state("zoomed")
+        self.ventana.protocol("WM_DELETE_WINDOW", self.cerrar_ventana)
 
         self.frame_login = tk.Frame(ventana)
         self.frame_login.pack()
@@ -84,9 +85,6 @@ class App:
         self.entry_password.delete(0, tk.END)
 
     def show_menu(self, user_info):
-        # Aquí puedes crear y mostrar un nuevo formulario para el menú de la aplicación
-        # Puedes usar self.ventana o crear un nuevo marco (frame) para mostrar las opciones del menú
-        # Debes conectar esta parte con tu lógica de la aplicación para registrar medidas y consultar medidas
 
         self.user_info = user_info
 
@@ -336,6 +334,10 @@ class App:
 
         self.canvas = FigureCanvasTkAgg(fig, master=self.frame_graph)
         self.canvas.get_tk_widget().pack()
+
+    def cerrar_ventana(self):
+        self.ventana.destroy()
+        exit()
 
 if __name__ == "__main__":
     #ventana
