@@ -1,23 +1,41 @@
 from datetime import datetime
+import os
+from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 
-fecha_actual = datetime.now()
-print(fecha_actual)
-
-meditions = {
-      "12/08/2004": 333,
-      "09/03/2025": 140,
-      "13/09/2023": 121,
-      "12/09/2023": 150,
-      "25/09/2023": 123,
-      "29/09/2023": 555,
-      "09/09/2021": 600,
-      "28/08/2023": 43,
-      "07/09/2023": 98 
+info = {
+        "userid": "javi",
+        "pwd_token": "b\"\\xfe\\x9by\\xf7O'\\x81\\x11\\xe5\\xc7O\\x7f^^\\xc9.B\\x9c<\\xbf-\\xf0[\\xbcs\\xa9\\x05\\xc8\\xa3-\\xd1\\x9c\"",
+        "meditions": {},
+        "salt": "b\"\\x0e'\\xa4\\xe7r\\x9e\\x02fw\\x92\\x7f\\xb4\\xa5\\x9d\\xa5\\xf0\""
 }
 
+salt = os.urandom(16)
+print("SALT:",salt)
+# derive
+kdf = Scrypt(
+    salt=salt,
+    length=32,
+    n=2**14,
+    r=8,
+    p=1,
+)
 
+password = "Javier33@"
 
-for fecha, valor in meditions.items():
-    dias_diferencia = (fecha_actual - datetime.strptime(fecha, "%d/%m/%Y")).days
-    if dias_diferencia <= 365 and dias_diferencia >= 0:
-        ultimo_ano[fecha] = valor
+token = kdf.derive(bytes(password, "utf-8"))
+
+print(token)
+
+# verify
+kdf = Scrypt(
+    salt=salt,
+    length=32,
+    n=2**14,
+    r=8,
+    p=1,
+)
+try:
+    kdf.verify(bytes(password, "utf-8"), token)
+    print("Se ha verificado correctamente")
+except:
+    print("No se ha podido verificar")
