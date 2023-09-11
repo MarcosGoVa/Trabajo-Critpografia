@@ -68,7 +68,6 @@ class App:
             tk.messagebox.showerror("Registro", """La contraseña no es válida. Requerimientos de contraseña: 
                                     \n- Longitud: 8-32 caracteres.
                                     \n- Al menos 1 mayúscula.
-                                    \n- Al menos 1 mayúscula.
                                     \n- Al menos 1 minúscula.
                                     \n- Al menos 1 carácter especial: ~!@#$%^*()_-+={}[]|:;?
                                     \n- Al menos 1 número. """)
