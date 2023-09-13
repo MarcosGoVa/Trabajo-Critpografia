@@ -1,4 +1,5 @@
 import json
+import pickle
 import base64
 import os
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
@@ -77,8 +78,8 @@ class Usuario:
         token_64 = base64.b64encode(token).decode("utf-8")
         salt_64 = base64.b64encode(salt).decode("utf-8")
 
-        #Si no está registrado, lo registramos
-        database.append({"userid":user,"pwd_token":token_64,"meditions":{}, "salt":salt_64})
+        #Si no está registrado, lo registramos # TODO: meditions como string
+        database.append({"userid":user,"pwd_token":token_64,"meditions":"", "salt":salt_64})
         
         # Guardamos los cambios
         file_manager.save(database,"database.json")
@@ -129,6 +130,11 @@ class Usuario:
                 )
                 try:
                     kdf.verify(bytes(password, "utf-8"), token_bytes)
+                    # decrypt meditions
+                    if user_info["meditions"] == "":
+                        user_info["meditions"] = {}
+                    else:
+                        user_info["meditions"] = pickle.loads((user_info["meditions"]))
                     return user_info
                 except:
                     print("-Contraseña incorrecta")
@@ -174,7 +180,7 @@ class Usuario:
             new_medition = Sugar(new_medition).value
         except:
             return -2
-
+ 
         print(new_day) 
         user_new_data["meditions"][new_day] = new_medition
         print(user_new_data["meditions"])
@@ -191,6 +197,23 @@ class Usuario:
 
         file_manager.save(database, "database.json")
         print("-Medición guardada")
+        return
+
+    @classmethod
+    def log_out_app(cls, user_info):
+        # encrypt dictionary again
+        user_info["meditions"] = pickle.dumps(user_info["meditions"])
+
+        file_manager = FileManager()
+        database = file_manager.load("database.json")
+
+        for user in database:
+            if user["userid"] == user_info["userid"]:
+                user["meditions"] = user_info["meditions"]
+                break
+        
+        file_manager.save(database, "database.json")
+        print("-Sesión cerrada")
         return
 
 

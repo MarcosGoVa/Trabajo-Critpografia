@@ -1,4 +1,5 @@
 import tkinter as tk
+import pickle
 import matplotlib.pyplot as plt
 from tkinter import messagebox, ttk
 from tkcalendar import Calendar
@@ -43,19 +44,19 @@ class App:
         password = self.entry_password.get()
 
         # Llama a tu función de inicio de sesión desde la clase Usuario
-        user_info = Usuario.login_app(user, password)
+        self.user_info = Usuario.login_app(user, password)
         
-        if user_info == -1:
+        if self.user_info == -1:
             tk.messagebox.showerror("Log in", "Contraseña incorrecta.")
             self.entry_usuario.delete(0, tk.END)
             self.entry_password.delete(0, tk.END)
-        elif user_info == -2:
+        elif self.user_info == -2:
             tk.messagebox.showerror("Log in", "El usuario no existe.")
             self.entry_usuario.delete(0, tk.END)
             self.entry_password.delete(0, tk.END)
         else:
             self.frame_login.pack_forget()  # Oculta el formulario de inicio de sesión
-            self.show_menu(user_info)
+            self.show_menu()
 
     def registro(self):
         usuario = self.entry_usuario.get()
@@ -83,10 +84,7 @@ class App:
         self.entry_usuario.delete(0, tk.END)
         self.entry_password.delete(0, tk.END)
 
-    def show_menu(self, user_info):
-
-        self.user_info = user_info
-
+    def show_menu(self):
         # Crear un marco para el menu 
         self.frame_menu = tk.Frame(self.ventana)
         self.frame_menu.pack()
@@ -96,7 +94,7 @@ class App:
         label_bienvenida.pack()
 
         # Botones
-        btn_cerrar_sesion = tk.Button(self.frame_menu, text="Cerrar Sesión", command=self.cerrar_sesion)
+        btn_cerrar_sesion = tk.Button(self.frame_menu, text="Cerrar Sesión", command=lambda: self.logout_from(self.frame_menu))
         btn_introducir_data = tk.Button(self.frame_menu, text="Introducir nueva medicion", command=self.introducir_data)
         btn_consulta = tk.Button(self.frame_menu, text="Consultar mediciones", command=self.consultar)
         
@@ -105,6 +103,7 @@ class App:
         btn_consulta.pack()
         btn_cerrar_sesion.pack()
 
+    # TODO BORRAR
     def cerrar_sesion(self):
         # Eliminar todo el menu
         for widget in self.frame_menu.winfo_children():
@@ -113,8 +112,7 @@ class App:
         self.user_info = None
 
         self.frame_login.pack()
-        self.entry_usuario.delete(0, tk.END)
-        self.entry_password.delete(0, tk.END)
+        
 
 
     # TODO check if empty fields
@@ -246,8 +244,13 @@ class App:
         return fechas_ordenadas,medidas_ordenadas
 
     def logout_from(self, current_place):
+        self.entry_usuario.delete(0, tk.END)
+        self.entry_password.delete(0, tk.END)
         for widget in current_place.winfo_children():
             widget.destroy()
+        
+        Usuario.log_out_app(self.user_info)
+
         current_place.destroy()
         self.cerrar_sesion()
 
@@ -255,7 +258,7 @@ class App:
         for widget in current_place.winfo_children():
             widget.destroy()
         current_place.destroy()
-        self.show_menu(self.user_info)
+        self.show_menu()
 
 
     def llenar_tabla(self, table, fechas_ordenadas):
@@ -335,6 +338,7 @@ class App:
         self.canvas.get_tk_widget().pack()
 
     def cerrar_ventana(self):
+        self.logout_from(self.ventana)
         self.ventana.destroy()
         exit()
 
