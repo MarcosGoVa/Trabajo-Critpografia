@@ -66,7 +66,7 @@ class Usuario:
         # Guardamos los cambios
         file_manager.save(database,"database.json")
         
-        return True
+        return 0
 
 
     @classmethod
@@ -129,7 +129,7 @@ class Usuario:
         return
     
     @classmethod
-    def new_medition_app(cls, user_new_data,new_day,new_medition):
+    def new_medition_app(cls, user_new_data,new_day,new_medition) -> None:
         
 
         # TODO: Validar que el dia sea correcto, que no se repita y que el nivel de azucar sea correcto
