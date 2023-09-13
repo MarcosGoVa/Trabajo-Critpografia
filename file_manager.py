@@ -19,7 +19,7 @@ class FileManager:
     def save(cls, content, file_name):
         try:
             with open(file_name,"w", encoding="utf-8", newline="") as file:
-                json.dump(content, file, indent=2)
+                json.dump(content, file, indent=4)
         except FileNotFoundError:
             raise FileNotFoundError("No se ha encontrado el archivo database.json")
         except json.decoder.JSONDecodeError:
