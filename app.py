@@ -5,7 +5,6 @@ from tkinter import messagebox, ttk
 from tkcalendar import Calendar
 from usuario import Usuario  
 from datetime import datetime
-import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from datetime import datetime
 
@@ -109,9 +108,7 @@ class App:
         for widget in self.frame_menu.winfo_children():
             widget.destroy()
         self.frame_menu.destroy()
-        self.user_info = None
-
-        self.frame_login.pack()
+        
         
 
 
@@ -249,10 +246,13 @@ class App:
         for widget in current_place.winfo_children():
             widget.destroy()
         
-        Usuario.log_out_app(self.user_info)
+        if self.user_info:
+            Usuario.log_out_app(self.user_info)
+            self.user_info = None
 
         current_place.destroy()
-        self.cerrar_sesion()
+
+        self.frame_login.pack()
 
     def menu_from(self, current_place):
         for widget in current_place.winfo_children():
@@ -339,7 +339,6 @@ class App:
 
     def cerrar_ventana(self):
         self.logout_from(self.ventana)
-        self.ventana.destroy()
         exit()
 
 if __name__ == "__main__":

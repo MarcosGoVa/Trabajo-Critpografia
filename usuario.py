@@ -134,7 +134,12 @@ class Usuario:
                     if user_info["meditions"] == "":
                         user_info["meditions"] = {}
                     else:
-                        user_info["meditions"] = pickle.loads((user_info["meditions"]))
+                        meditions_64 = user_info["meditions"]
+                        meditions_bytes = base64.b64decode(meditions_64)                    # pasarlo de base64 -> bytes
+                        meditions_dict = pickle.loads(meditions_bytes)                       # pasarlo de bytes -> dict
+                        print(meditions_dict)
+                        user_info["meditions"] = meditions_dict
+                        
                     return user_info
                 except:
                     print("-Contraseña incorrecta")
@@ -202,7 +207,12 @@ class Usuario:
     @classmethod
     def log_out_app(cls, user_info):
         # encrypt dictionary again
-        user_info["meditions"] = pickle.dumps(user_info["meditions"])
+        meditions_old = user_info["meditions"]
+        meditions_bytes = pickle.dumps(meditions_old)                                        # pasarlo de dict -> bytes
+        meditions_64 = base64.b64encode(meditions_bytes).decode("utf-8")                  # pasarlo de bytes -> base64
+        print(meditions_64)
+        user_info["meditions"] = meditions_64
+       
 
         file_manager = FileManager()
         database = file_manager.load("database.json")
