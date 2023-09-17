@@ -3,6 +3,7 @@ import pickle
 import base64
 import os
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
+from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from file_manager import FileManager
 from data.password import Password
 from data.username import Username
@@ -74,12 +75,19 @@ class Usuario:
             p=1,
         )
         token = kdf.derive(bytes(password, "utf-8"))
-
         token_64 = base64.b64encode(token).decode("utf-8")
         salt_64 = base64.b64encode(salt).decode("utf-8")
 
+        # Crear nonce y key para chacha20Poly1305
+        key = ChaCha20Poly1305.generate_key()
+        nonce = os.urandom(12)
+        key_64 = base64.b64encode(key).decode("utf-8")
+        nonce_64 = base64.b64encode(nonce).decode("utf-8")
+
+
         #Si no está registrado, lo registramos # TODO: meditions como string
-        database.append({"userid":user,"pwd_token":token_64,"meditions":"", "salt":salt_64})
+        database.append({"userid":user,"pwd_token":token_64,"meditions":"", "salt":salt_64,
+                         "key":key_64, "nonce":nonce_64})
         
         # Guardamos los cambios
         file_manager.save(database,"database.json")
@@ -134,8 +142,16 @@ class Usuario:
                     if user_info["meditions"] == "":
                         user_info["meditions"] = {}
                     else:
-                        meditions_64 = user_info["meditions"]
-                        meditions_bytes = base64.b64decode(meditions_64)                    # pasarlo de base64 -> bytes
+                        meditions_encrypted_64 = user_info["meditions"]
+                        meditions_encr_bytes = base64.b64decode(meditions_encrypted_64)
+                        nonce = base64.b64decode(user_info["nonce"])
+                        key = base64.b64decode(user_info["key"])
+                        chacha = ChaCha20Poly1305(key)
+                        decrypted_meditions = chacha.decrypt(nonce, meditions_encr_bytes, meditions_encr_bytes)
+                        meditions_64 = base64.b64encode(decrypted_meditions).decode("utf-8")
+
+                        # serializado a dict
+                        meditions_bytes = base64.b64decode(meditions_64)                     # pasarlo de base64 -> bytes
                         meditions_dict = pickle.loads(meditions_bytes)                       # pasarlo de bytes -> dict
                         print(meditions_dict)
                         user_info["meditions"] = meditions_dict
@@ -208,11 +224,16 @@ class Usuario:
     def log_out_app(cls, user_info):
         # encrypt dictionary again
         meditions_old = user_info["meditions"]
-        meditions_bytes = pickle.dumps(meditions_old)                                        # pasarlo de dict -> bytes
-        meditions_64 = base64.b64encode(meditions_bytes).decode("utf-8")                  # pasarlo de bytes -> base64
-        print(meditions_64)
-        user_info["meditions"] = meditions_64
-       
+        nonce = base64.b64decode(user_info["nonce"])
+        key = base64.b64decode(user_info["key"])
+        # serializar
+        meditions_bytes = pickle.dumps(meditions_old)                                     # pasarlo de dict -> bytes                 # pasarlo de bytes -> base64
+        # chacha encrypt
+        chacha = ChaCha20Poly1305(key)
+        encrypted_bytes = chacha.encrypt(nonce, meditions_bytes, meditions_bytes)
+        # chacha to 64
+        meditions_encrypted = base64.b64encode(encrypted_bytes).decode("utf-8")
+        user_info["meditions"] = meditions_encrypted
 
         file_manager = FileManager()
         database = file_manager.load("database.json")
