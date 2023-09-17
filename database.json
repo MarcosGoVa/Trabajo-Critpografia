@@ -7,16 +7,10 @@
     },
     {
         "userid": "marcos",
-        "pwd_token": "X8KcvTaMPjTadDt8FsDWyPdjA+R/HvrhUPseynZAW64=",
-        "meditions": "gASVMwAAAAAAAAB9lCiMCjEzLzA5LzIwMjOUS3uMCjA1LzA5LzIwMjOUTTgBjAowNy8wOS8yMDIzlEt7dS4=",
-        "salt": "it/F18AFkA2bjOYyuIa87A=="
-    },
-    {
-        "userid": "bale2manos",
-        "pwd_token": "pOmPyxe4krS+ASFrni13kMaszhwj3LM8WMcSSeZg3VE=",
-        "meditions": "A6d+EoSt2i7awYVXpRSFnfV99rvDYbvba0VWS1RzYA1mp8OGlxnxYdR4TUlfsQ==",
-        "salt": "AEdstAxi6twfaUWFWoATsw==",
-        "key": "tgDFzQaEL1RplBxwdwHYS/oRMiK4Eud992p3Rv0r7VU=",
-        "nonce": "8O3hAjQm6l2ir3N5"
+        "pwd_token": "gN/wTsMyzcZJSEnmZrgwVJlCpRjJLSCclgQgXoi6KkE=",
+        "meditions": "LGISEQaGZygZxZGcJlOkSbbZfSExhhkUdoim9aU2jg4byW++/njmdiw9Z0ueqUE=",
+        "salt": "9fU50C4EeJVyTFcKm5OGdw==",
+        "key": "C4uW45tgSfP1WsLKGOm4h4x9MoOJKrhQfhHMf5LPKTk=",
+        "nonce": "RTcmWRMD52D1v7EY"
     }
 ]

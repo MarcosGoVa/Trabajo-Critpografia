@@ -74,15 +74,15 @@ class Usuario:
             r=8,
             p=1,
         )
-        token = kdf.derive(bytes(password, "utf-8"))
-        token_64 = base64.b64encode(token).decode("utf-8")
-        salt_64 = base64.b64encode(salt).decode("utf-8")
+        token = kdf.derive(bytes(password, "utf-8")) #Lo pasamos a bytes y creamos el token
+        token_64 = base64.b64encode(token).decode("utf-8") #Pasamos el token a base 64 para poder introducirlo en el json
+        salt_64 = base64.b64encode(salt).decode("utf-8") #Pasamos el salt a base 64 para poder introducirlo en el json
 
         # Crear nonce y key para chacha20Poly1305
-        key = ChaCha20Poly1305.generate_key()
-        nonce = os.urandom(12)
-        key_64 = base64.b64encode(key).decode("utf-8")
-        nonce_64 = base64.b64encode(nonce).decode("utf-8")
+        key = ChaCha20Poly1305.generate_key() #Creamos la key
+        nonce = os.urandom(12) #Creamos el nonce
+        key_64 = base64.b64encode(key).decode("utf-8") #Pasamos la key a base 64 para poder introducirlo en el json
+        nonce_64 = base64.b64encode(nonce).decode("utf-8") #Pasamos el nonce a base 64 para poder introducirlo en el json
 
 
         #Si no está registrado, lo registramos # TODO: meditions como string
@@ -126,7 +126,7 @@ class Usuario:
         for user_info in database:
             if user_info["userid"] == user:
                 # verify
-                salt_bytes = base64.b64decode(user_info["salt"])
+                salt_bytes = base64.b64decode(user_info["salt"]) #Pasamos el base 64 que hay en el json a bytes para poder verificar
                 token_bytes = base64.b64decode(user_info["pwd_token"])
 
                 kdf = Scrypt(
@@ -147,7 +147,7 @@ class Usuario:
                         nonce = base64.b64decode(user_info["nonce"])
                         key = base64.b64decode(user_info["key"])
                         chacha = ChaCha20Poly1305(key)
-                        decrypted_meditions = chacha.decrypt(nonce, meditions_encr_bytes, meditions_encr_bytes)
+                        decrypted_meditions = chacha.decrypt(nonce, meditions_encr_bytes, None) #El except se tira en esta línea
                         meditions_64 = base64.b64encode(decrypted_meditions).decode("utf-8")
 
                         # serializado a dict
@@ -224,13 +224,13 @@ class Usuario:
     def log_out_app(cls, user_info):
         # encrypt dictionary again
         meditions_old = user_info["meditions"]
-        nonce = base64.b64decode(user_info["nonce"])
-        key = base64.b64decode(user_info["key"])
+        nonce = base64.b64decode(user_info["nonce"]) #Pasamos el nonce a bytes
+        key = base64.b64decode(user_info["key"]) #Pasamos la key a bytes
         # serializar
         meditions_bytes = pickle.dumps(meditions_old)                                     # pasarlo de dict -> bytes                 # pasarlo de bytes -> base64
         # chacha encrypt
         chacha = ChaCha20Poly1305(key)
-        encrypted_bytes = chacha.encrypt(nonce, meditions_bytes, meditions_bytes)
+        encrypted_bytes = chacha.encrypt(nonce, meditions_bytes, None)
         # chacha to 64
         meditions_encrypted = base64.b64encode(encrypted_bytes).decode("utf-8")
         user_info["meditions"] = meditions_encrypted
