@@ -6,11 +6,11 @@
         "salt": "bcsboBbRkK1vyD9IZtQYxw=="
     },
     {
-        "userid": "marcos",
-        "pwd_token": "gN/wTsMyzcZJSEnmZrgwVJlCpRjJLSCclgQgXoi6KkE=",
-        "meditions": "LGISEQaGZygZxZGcJlOkSbbZfSExhhkUdoim9aU2jg4byW++/njmdiw9Z0ueqUE=",
-        "salt": "9fU50C4EeJVyTFcKm5OGdw==",
-        "key": "C4uW45tgSfP1WsLKGOm4h4x9MoOJKrhQfhHMf5LPKTk=",
-        "nonce": "RTcmWRMD52D1v7EY"
+        "userid": "user",
+        "pwd_token": "/RLRaMwIZx+HKD0EoGsSkCr/SQ/IJmrl1y8EvdLYyZ4=",
+        "meditions": "RLzkJRYmHahgHJLkB3nvj5mfecrJAfkm4uFC+3GJ1MgRFfg+cdZhqr0RDkAEcg==",
+        "salt": "oIWNMBhCjdWMBidNnRFwvQ==",
+        "key": "xcluUdOCoT5eMqjiDorPgMj+sB+xdJeMpqtN0gT1rpI=",
+        "nonce": "IGWoSpvvK6il93+g"
     }
 ]

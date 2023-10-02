@@ -142,6 +142,7 @@ class Usuario:
                     if user_info["meditions"] == "":
                         user_info["meditions"] = {}
                     else:
+                        # Desencriptado
                         meditions_encrypted_64 = user_info["meditions"]
                         meditions_encr_bytes = base64.b64decode(meditions_encrypted_64)
                         nonce = base64.b64decode(user_info["nonce"])
@@ -155,6 +156,29 @@ class Usuario:
                         meditions_dict = pickle.loads(meditions_bytes)                       # pasarlo de bytes -> dict
                         print(meditions_dict)
                         user_info["meditions"] = meditions_dict
+
+
+                        # Nuevo nonce
+                        nonce = os.urandom(12) #Creamos el nonce
+                        nonce_64 = base64.b64encode(nonce).decode("utf-8") #Pasamos el nonce a base 64 para poder introducirlo en el json
+                        user_info["nonce"] = nonce_64
+                    
+                        # Nuevo salt y nuevo token de password
+                        salt = os.urandom(16)
+                        # derive
+                        kdf = Scrypt(
+                            salt=salt,
+                            length=32,
+                            n=2**14,
+                            r=8,
+                            p=1,
+                        )
+                        token = kdf.derive(bytes(password, "utf-8")) #Lo pasamos a bytes y creamos el token
+                        token_64 = base64.b64encode(token).decode("utf-8") #Pasamos el token a base 64 para poder introducirlo en el json
+                        salt_64 = base64.b64encode(salt).decode("utf-8") #Pasamos el salt a base 64 para poder introducirlo en el json
+                        user_info["salt"] = salt_64
+                        user_info["pwd_token"] = token_64
+
                         
                     return user_info
                 except:
@@ -224,6 +248,7 @@ class Usuario:
     def log_out_app(cls, user_info):
         # encrypt dictionary again
         meditions_old = user_info["meditions"]
+        # TODO nonce deberia ser nuevo?
         nonce = base64.b64decode(user_info["nonce"]) #Pasamos el nonce a bytes
         key = base64.b64decode(user_info["key"]) #Pasamos la key a bytes
         # serializar
@@ -241,6 +266,9 @@ class Usuario:
         for user in database:
             if user["userid"] == user_info["userid"]:
                 user["meditions"] = user_info["meditions"]
+                user["nonce"] = user_info["nonce"]
+                user["salt"] = user_info["salt"]
+                user["pwd_token"] = user_info["pwd_token"]
                 break
         
         file_manager.save(database, "database.json")
