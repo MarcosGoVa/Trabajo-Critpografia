@@ -1,23 +1,9 @@
 [
     {
-        "userid": "javier",
-        "pwd_token": "zT54hwgYc2ltU4M/fvffAIAIqUuoKMe/Ut3mTr1eJoo=",
-        "meditions": "gASVEwAAAAAAAAB9lIwKMTMvMDkvMjAyM5RLeXMu",
-        "salt": "bcsboBbRkK1vyD9IZtQYxw=="
-    },
-    {
-        "userid": "user",
-        "pwd_token": "/RLRaMwIZx+HKD0EoGsSkCr/SQ/IJmrl1y8EvdLYyZ4=",
-        "meditions": "RLzkJRYmHahgHJLkB3nvj5mfecrJAfkm4uFC+3GJ1MgRFfg+cdZhqr0RDkAEcg==",
-        "salt": "oIWNMBhCjdWMBidNnRFwvQ==",
-        "key": "xcluUdOCoT5eMqjiDorPgMj+sB+xdJeMpqtN0gT1rpI=",
-        "nonce": "IGWoSpvvK6il93+g"
-    },
-    {
-        "userid": "javimar",
-        "pwd_token": "TaLY4gxhrdwIl6UVTNM8wI6y0Nv6rwRdRChVsN2tFKE=",
-        "meditions": "",
-        "salt": "Jyh7SVLZs9XpMFX5sQ6IEQ==",
-        "nonce": "1JbX+rCIFUcDxBLJ"
+        "userid": "javito",
+        "pwd_token": "asjnqj5Wy9+krwdkTWVlkTJBGpG1hc6+hKxBW0iDIuY=",
+        "meditions": "h4XdD+DEIKPNek8CygO7U/t0HZSzi06yCkYw7FDGa9boBoTMC0NkmiE9gy3qZb8FT3fgdT+h2SCOGsitZ9+SxEj8YuUTJv+38kfrHYY=",
+        "salt": "QgbN3AWsYiKGVkRMcljp0w==",
+        "nonce": "mn4B6bbU+2KSsTgA"
     }
 ]

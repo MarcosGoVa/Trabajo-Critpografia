@@ -4,8 +4,8 @@ import base64
 import os
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from file_manager import FileManager
 from data.password import Password
 from data.username import Username
@@ -71,27 +71,6 @@ class Usuario:
         
         return 0
 
-    """
-    @classmethod
-    def login(cls):
-        user = str(input("-Introduzca su usuario: "))
-        password = str(input("-Introduzca su contraseña: "))
-        file_manager = FileManager()
-        
-        database = file_manager.load("database.json")
-
-        #Buscamos si el usuario ya está registrado
-        for user_info in database:
-            if user_info["userid"] == user:
-                if user_info["password"] == password:
-                    print("-Bienvenido al sistema ", user_info["userid"])
-                    return user_info
-                print("-Contraseña incorrecta")
-                return
-        
-        print("-El usuario no está registrado")
-        return
-    """
     
     @classmethod
     def login_app(cls, user, password):
@@ -120,6 +99,7 @@ class Usuario:
                         user_info["meditions"] = {}
                         pbkdf = PBKDF2HMAC(
                             algorithm=hashes.SHA256(),
+                            length=32,
                             salt=salt_bytes,
                             iterations=100000,  # Adjust the number of iterations as needed for your security requirements
                         )
@@ -134,6 +114,7 @@ class Usuario:
 
                         pbkdf = PBKDF2HMAC(
                             algorithm=hashes.SHA256(),
+                            length=32,
                             salt=salt_bytes,
                             iterations=100000,  # Adjust the number of iterations as needed for your security requirements
                         )
