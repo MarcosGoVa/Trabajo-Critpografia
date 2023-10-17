@@ -4,6 +4,8 @@ import base64
 import os
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives import hashes
 from file_manager import FileManager
 from data.password import Password
 from data.username import Username
@@ -16,30 +18,7 @@ class Usuario:
     def __init__(self,nombre,contraseña):
         self.nombre = nombre
         self.contraseña =  contraseña
-    """"
-    @classmethod
-    def register(cls):
-        user = str(input("-Introduzca su usuario: "))
-        password_in = str(input("-Introduzca su contraseña: "))
-        password = Password(password_in)
-        file_manager = FileManager()
-        
-        database = file_manager.load("database.json")
-            
-        #Buscamos si el usuario ya está registrado
-        for i in database:
-            if i["userid"] == user:
-                print("-El usuario ya está registrado")
-                return
-        
-        #Si no está registrado, lo registramos
-        database.append({"userid":user,"password":password,"meditions":{}})
-        
-        # Guardamos los cambios
-        file_manager.save(database,"database.json")
-        
-        print("-Usuario registrado")
-    """
+    
 
     @classmethod
     def register_app(cls, user_in, password_in) -> int:
@@ -79,15 +58,13 @@ class Usuario:
         salt_64 = base64.b64encode(salt).decode("utf-8") #Pasamos el salt a base 64 para poder introducirlo en el json
 
         # Crear nonce y key para chacha20Poly1305
-        key = ChaCha20Poly1305.generate_key() #Creamos la key
         nonce = os.urandom(12) #Creamos el nonce
-        key_64 = base64.b64encode(key).decode("utf-8") #Pasamos la key a base 64 para poder introducirlo en el json
         nonce_64 = base64.b64encode(nonce).decode("utf-8") #Pasamos el nonce a base 64 para poder introducirlo en el json
 
 
         #Si no está registrado, lo registramos # TODO: meditions como string
         database.append({"userid":user,"pwd_token":token_64,"meditions":"", "salt":salt_64,
-                         "key":key_64, "nonce":nonce_64})
+                         "nonce":nonce_64})
         
         # Guardamos los cambios
         file_manager.save(database,"database.json")
@@ -141,13 +118,29 @@ class Usuario:
                     # decrypt meditions
                     if user_info["meditions"] == "":
                         user_info["meditions"] = {}
+                        pbkdf = PBKDF2HMAC(
+                            algorithm=hashes.SHA256(),
+                            salt=salt_bytes,
+                            iterations=100000,  # Adjust the number of iterations as needed for your security requirements
+                        )
+                        key_token = pbkdf.derive(bytes(password, "utf-8"))
+                        user_info["key_token"] = base64.b64encode(key_token).decode("utf-8") ## ¡¡ESTO NO VA A LA BASE DE DATOS; ESTÁ "VIVO" EN LA SESIÓN DE USUARIO   
+
                     else:
-                        # Desencriptado
+                        # Decrypt meditions
                         meditions_encrypted_64 = user_info["meditions"]
                         meditions_encr_bytes = base64.b64decode(meditions_encrypted_64)
                         nonce = base64.b64decode(user_info["nonce"])
-                        key = base64.b64decode(user_info["key"])
-                        chacha = ChaCha20Poly1305(key)
+
+                        pbkdf = PBKDF2HMAC(
+                            algorithm=hashes.SHA256(),
+                            salt=salt_bytes,
+                            iterations=100000,  # Adjust the number of iterations as needed for your security requirements
+                        )
+                        key_token = pbkdf.derive(bytes(password, "utf-8"))
+                        user_info["key_token"] = base64.b64encode(key_token).decode("utf-8") ## ¡¡ESTO NO VA A LA BASE DE DATOS; ESTÁ "VIVO" EN LA SESIÓN DE USUARIO   
+                        
+                        chacha = ChaCha20Poly1305(key_token)
                         decrypted_meditions = chacha.decrypt(nonce, meditions_encr_bytes, None) #El except se tira en esta línea
                         meditions_64 = base64.b64encode(decrypted_meditions).decode("utf-8")
 
@@ -246,17 +239,20 @@ class Usuario:
 
     @classmethod
     def log_out_app(cls, user_info):
+        print(user_info["key_token"])
         # encrypt dictionary again
         meditions_old = user_info["meditions"]
         # TODO nonce deberia ser nuevo?
         nonce = base64.b64decode(user_info["nonce"]) #Pasamos el nonce a bytes
-        key = base64.b64decode(user_info["key"]) #Pasamos la key a bytes
         # serializar
         meditions_bytes = pickle.dumps(meditions_old)                                     # pasarlo de dict -> bytes                 # pasarlo de bytes -> base64
+        
         # chacha encrypt
-        chacha = ChaCha20Poly1305(key)
+        key_token = base64.b64decode(user_info["key_token"])   ## ¡¡ESTO NO VA A LA BASE DE DATOS; ESTÁ "VIVO" EN LA SESIÓN DE USUARIO!!
+        chacha = ChaCha20Poly1305(key_token)
         encrypted_bytes = chacha.encrypt(nonce, meditions_bytes, None)
-        # chacha to 64
+
+        # encrypted dictionary to 64
         meditions_encrypted = base64.b64encode(encrypted_bytes).decode("utf-8")
         user_info["meditions"] = meditions_encrypted
 
