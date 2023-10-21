@@ -162,33 +162,8 @@ class Usuario:
         print("-El usuario no está registrado")
         return -2
     
-    """
-    @classmethod
-    def new_medition(cls, user_new_data):
-        new_medition = str(input("-Introduzca el nivel de azucar: "))
-        new_day = str(input("-Introduzca el dia en formato DD/MM/YYYY: "))
-
-        user_new_data["meditions"][new_day] = new_medition
-        
-        file_manager = FileManager()
-
-        database = file_manager.load("database.json")
-
-        for user in database:
-            if user["userid"] == user_new_data["userid"]:
-                user["meditions"] = user_new_data["meditions"]
-                break
-
-        file_manager.save(database, "database.json")
-        print("-Medición guardada")
-        return
-    """
-    
     @classmethod
     def new_medition_app(cls, user_new_data,new_day,new_medition) -> None:
-        
-
-        # TODO: Validar que el dia sea correcto, que no se repita y que el nivel de azucar sea correcto
 
         try:
             new_day = Date(new_day).value
@@ -223,7 +198,6 @@ class Usuario:
         print(user_info["key_token"])
         # encrypt dictionary again
         meditions_old = user_info["meditions"]
-        # TODO nonce deberia ser nuevo?
         nonce = base64.b64decode(user_info["nonce"]) #Pasamos el nonce a bytes
         # serializar
         meditions_bytes = pickle.dumps(meditions_old)                                     # pasarlo de dict -> bytes                 # pasarlo de bytes -> base64
