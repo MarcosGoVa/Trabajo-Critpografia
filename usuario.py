@@ -62,7 +62,7 @@ class Usuario:
         nonce_64 = base64.b64encode(nonce).decode("utf-8") #Pasamos el nonce a base 64 para poder introducirlo en el json
 
 
-        #Si no está registrado, lo registramos # TODO: meditions como string
+        #Si no está registrado, lo registramos
         database.append({"userid":user,"pwd_token":token_64,"meditions":"", "salt":salt_64,
                          "nonce":nonce_64})
         
@@ -94,32 +94,22 @@ class Usuario:
                 )
                 try:
                     kdf.verify(bytes(password, "utf-8"), token_bytes)
+                    pbkdf = PBKDF2HMAC(
+                        algorithm=hashes.SHA256(),
+                        length=32,
+                        salt=salt_bytes,
+                        iterations=100000,  
+                    )
+                    key_token = pbkdf.derive(bytes(password, "utf-8"))
+                    user_info["key_token"] = base64.b64encode(key_token).decode("utf-8") ## ¡¡ESTO NO VA A LA BASE DE DATOS; ESTÁ "VIVO" EN LA SESIÓN DE USUARIO  
                     # decrypt meditions
                     if user_info["meditions"] == "":
                         user_info["meditions"] = {}
-                        pbkdf = PBKDF2HMAC(
-                            algorithm=hashes.SHA256(),
-                            length=32,
-                            salt=salt_bytes,
-                            iterations=100000,  # Adjust the number of iterations as needed for your security requirements
-                        )
-                        key_token = pbkdf.derive(bytes(password, "utf-8"))
-                        user_info["key_token"] = base64.b64encode(key_token).decode("utf-8") ## ¡¡ESTO NO VA A LA BASE DE DATOS; ESTÁ "VIVO" EN LA SESIÓN DE USUARIO   
-
                     else:
                         # Decrypt meditions
                         meditions_encrypted_64 = user_info["meditions"]
                         meditions_encr_bytes = base64.b64decode(meditions_encrypted_64)
                         nonce = base64.b64decode(user_info["nonce"])
-
-                        pbkdf = PBKDF2HMAC(
-                            algorithm=hashes.SHA256(),
-                            length=32,
-                            salt=salt_bytes,
-                            iterations=100000,  # Adjust the number of iterations as needed for your security requirements
-                        )
-                        key_token = pbkdf.derive(bytes(password, "utf-8"))
-                        user_info["key_token"] = base64.b64encode(key_token).decode("utf-8") ## ¡¡ESTO NO VA A LA BASE DE DATOS; ESTÁ "VIVO" EN LA SESIÓN DE USUARIO   
                         
                         chacha = ChaCha20Poly1305(key_token)
                         decrypted_meditions = chacha.decrypt(nonce, meditions_encr_bytes, None) #El except se tira en esta línea
@@ -162,9 +152,11 @@ class Usuario:
         print("-El usuario no está registrado")
         return -2
     
+   
+    
     @classmethod
     def new_medition_app(cls, user_new_data,new_day,new_medition) -> None:
-
+        
         try:
             new_day = Date(new_day).value
         except:
@@ -196,8 +188,8 @@ class Usuario:
     @classmethod
     def log_out_app(cls, user_info):
         print(user_info["key_token"])
-        # encrypt dictionary again
         meditions_old = user_info["meditions"]
+        
         nonce = base64.b64decode(user_info["nonce"]) #Pasamos el nonce a bytes
         # serializar
         meditions_bytes = pickle.dumps(meditions_old)                                     # pasarlo de dict -> bytes                 # pasarlo de bytes -> base64

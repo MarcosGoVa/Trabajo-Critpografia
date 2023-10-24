@@ -8,9 +8,6 @@ from datetime import datetime
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from datetime import datetime
 
-
-# TODO cambiar titulos de pestañas 
-# TODO modular codigo?
 class App:
     def __init__(self, ventana):
         self.ventana = ventana
@@ -46,11 +43,11 @@ class App:
         self.user_info = Usuario.login_app(user, password)
         
         if self.user_info == -1:
-            tk.messagebox.showerror("Log in", "Contraseña incorrecta.")
+            tk.messagebox.showerror("Log in", "Contraseña o usuario incorrectos.")
             self.entry_usuario.delete(0, tk.END)
             self.entry_password.delete(0, tk.END)
         elif self.user_info == -2:
-            tk.messagebox.showerror("Log in", "El usuario no existe.")
+            tk.messagebox.showerror("Log in", "Contraseña o usuario incorrectos.")
             self.entry_usuario.delete(0, tk.END)
             self.entry_password.delete(0, tk.END)
         else:
@@ -102,7 +99,6 @@ class App:
         btn_consulta.pack()
         btn_cerrar_sesion.pack()
 
-    # TODO BORRAR
     def cerrar_sesion(self):
         # Eliminar todo el menu
         for widget in self.frame_menu.winfo_children():
@@ -112,7 +108,6 @@ class App:
         
 
 
-    # TODO check if empty fields
     def introducir_data(self):
         self.frame_menu.pack_forget()
         

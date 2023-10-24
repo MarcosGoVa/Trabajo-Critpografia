@@ -5,5 +5,26 @@
         "meditions": "h4XdD+DEIKPNek8CygO7U/t0HZSzi06yCkYw7FDGa9boBoTMC0NkmiE9gy3qZb8FT3fgdT+h2SCOGsitZ9+SxEj8YuUTJv+38kfrHYY=",
         "salt": "QgbN3AWsYiKGVkRMcljp0w==",
         "nonce": "mn4B6bbU+2KSsTgA"
+    },
+    {
+        "userid": "javier",
+        "pwd_token": "hmMU5abguBrclqAPBwSJgYDaZKm/Uwb8w8IcHm1rz5g=",
+        "meditions": "T7Yv5igDBCDD7kdKF4acKo4QKbyc377+wGhEQK0tOQyV//qvadt1XE7Hcio0KU0atVnHvK3eE/zOR+PLmrs=",
+        "salt": "TMytxwB5rah5HTwGTgiq1w==",
+        "nonce": "C8YbbgpREYnG8r+D"
+    },
+    {
+        "userid": "marcos",
+        "pwd_token": "XyrlunX6Iu3ILOVyIuoyXPdFjMYutXNu5pYvlm8lDSc=",
+        "meditions": "AiFi2l0ax94lcqpfR8BR3w591z15cuShdEo8/SAKZ4sPXy376/Ew80ng/E2vjkFBx6AuqI/moJ5oCGU5w4nB",
+        "salt": "TmNQfgbyT8NjVO+PMkLueA==",
+        "nonce": "qZQHzuLbOSIL0szU"
+    },
+    {
+        "userid": "javieres",
+        "pwd_token": "A26LAMO36GxxLXGu44uC+9HrxMuEjPXBsWOHT1woVq4=",
+        "meditions": "FXvkBQVtXTne59KhXZIydVunWzu+",
+        "salt": "fziZ3bae5VJbyZbDEkj09w==",
+        "nonce": "w5SAJ/oUmIazr7bv"
     }
 ]

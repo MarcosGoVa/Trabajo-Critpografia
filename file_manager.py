@@ -11,7 +11,7 @@ class FileManager:
         except json.decoder.JSONDecodeError:
             database = []
         
-        file.close() #TODO ¿Es necesario?
+        file.close()
 
         return database
     
