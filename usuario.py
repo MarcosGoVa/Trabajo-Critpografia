@@ -128,20 +128,34 @@ class Usuario:
                         user_info["nonce"] = nonce_64
                     
                         # Nuevo salt y nuevo token de password
-                        salt = os.urandom(16)
+                        salt_new = os.urandom(16)
                         # derive
                         kdf = Scrypt(
-                            salt=salt,
+                            salt=salt_new,
                             length=32,
                             n=2**14,
                             r=8,
                             p=1,
                         )
-                        token = kdf.derive(bytes(password, "utf-8")) #Lo pasamos a bytes y creamos el token
-                        token_64 = base64.b64encode(token).decode("utf-8") #Pasamos el token a base 64 para poder introducirlo en el json
-                        salt_64 = base64.b64encode(salt).decode("utf-8") #Pasamos el salt a base 64 para poder introducirlo en el json
+
+                        pbkdf = PBKDF2HMAC(
+                        algorithm=hashes.SHA256(),
+                        length=32,
+                        salt=salt_new,
+                        iterations=100000,  
+                    )
+                        new_key_token = pbkdf.derive(bytes(password, "utf-8"))
+                        user_info["key_token"] = base64.b64encode(new_key_token).decode("utf-8") ## ¡¡ESTO NO VA A LA BASE DE DATOS; ESTÁ "VIVO" EN LA SESIÓN DE USUARIO  
+
+
+
+                        pwd_token = kdf.derive(bytes(password, "utf-8")) #Lo pasamos a bytes y creamos el token
+                        pwd_token_64 = base64.b64encode(pwd_token).decode("utf-8") #Pasamos el token a base 64 para poder introducirlo en el json
+                        salt_64 = base64.b64encode(salt_new).decode("utf-8") #Pasamos el salt a base 64 para poder introducirlo en el json
                         user_info["salt"] = salt_64
-                        user_info["pwd_token"] = token_64
+                        user_info["pwd_token"] = pwd_token_64
+                        
+
 
                         
                     return user_info
