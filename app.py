@@ -1,5 +1,6 @@
 import tkinter as tk
 import pickle
+import os
 import matplotlib.pyplot as plt
 from tkinter import messagebox, ttk
 from tkcalendar import Calendar
@@ -7,6 +8,9 @@ from usuario import Usuario
 from datetime import datetime
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from datetime import datetime
+from sistema import Sistema
+from tkinter import filedialog
+
 
 class App:
     def __init__(self, ventana):
@@ -27,12 +31,71 @@ class App:
         self.btn_login = tk.Button(self.frame_login, text="Iniciar Sesión", command=self.login)
         self.btn_registro = tk.Button(self.frame_login, text="Registrarse", command=self.registro)
 
+
+        self.btn_check_signature = tk.Button(self.frame_login, text="Comprobar informe", command=lambda: self.comprobar_informe_acceso())
+
         self.label_usuario.pack()
         self.entry_usuario.pack()
         self.label_password.pack()
         self.entry_password.pack()
         self.btn_login.pack()
         self.btn_registro.pack()
+        self.btn_check_signature.pack()
+
+    def comprobar_informe_acceso(self):
+        self.frame_login.pack_forget()
+        
+        self.frame_comprobar_informe = tk.Frame(self.ventana)
+        self.frame_comprobar_informe.pack()
+        # Crear un botón para seleccionar el archivo
+        self.file_firma = None
+        self.file_mensaje = None
+        
+        self.btn_subir_firma = tk.Button(self.frame_comprobar_informe, text="Subir firma", command=lambda: self.load_file(1))
+        self.btn_subir_firma.pack(pady=20)
+
+        self.btn_subir_mensaje = tk.Button(self.frame_comprobar_informe, text="Subir mensaje", command=lambda: self.load_file(2))
+        self.btn_subir_mensaje.pack(pady=20)
+
+        btn_verificar_informe = tk.Button(self.frame_comprobar_informe, text="Verificar Informe", command=lambda: self.verificar_informe())
+        btn_verificar_informe.pack(pady=20)
+
+        btn_volver_a_inicio = tk.Button(self.frame_comprobar_informe, text="Volver ", command=lambda: self.volver_a_inicio(self.frame_comprobar_informe))
+        btn_volver_a_inicio.pack(pady=15)
+
+        #Usuario.comprobar_informe_usuario()
+
+    
+    def verificar_informe(self):
+        if (self.file_firma and self.file_mensaje):
+            if Usuario.comprobar_informe_usuario(self.file_firma,self.file_mensaje) == True:
+                tk.messagebox.showinfo("Éxito", "Informe verificado correctamente")
+            else:
+                tk.messagebox.showerror("Error", "El informe no es válido")
+        else:
+            tk.messagebox.showerror("Error", "Falta por subir algún archivo")
+
+    def load_file(self, tipo_documento):
+        file_path = filedialog.askopenfilename()
+        if file_path:
+            if tipo_documento == 1:
+                with open(file_path, 'rb') as file:
+                    self.file_firma = file.read()
+                print(f"Firma cargado: {file_path}")
+                self.btn_subir_firma.configure(bg="green")
+            elif tipo_documento == 2:
+                with open(file_path, 'rb') as file:
+                    self.file_mensaje = file.read()
+                print(f"Mensaje cargado: {file_path}")
+                self.btn_subir_mensaje.configure(bg="green")
+
+
+
+    def volver_a_inicio(self, current_place):
+        for widget in current_place.winfo_children():
+            widget.destroy()
+        current_place.destroy()
+        self.frame_login.pack()
 
 
     def login(self):
@@ -93,11 +156,17 @@ class App:
         btn_cerrar_sesion = tk.Button(self.frame_menu, text="Cerrar Sesión", command=lambda: self.logout_from(self.frame_menu))
         btn_introducir_data = tk.Button(self.frame_menu, text="Introducir nueva medicion", command=self.introducir_data)
         btn_consulta = tk.Button(self.frame_menu, text="Consultar mediciones", command=self.consultar)
+
+        btn_pedir_informe = tk.Button(self.frame_menu, text="Pedir_informe", command=lambda: self.pedir_informe(self.user_info))
         
         # Mostrar en el frame en pantalla
         btn_introducir_data.pack()
         btn_consulta.pack()
         btn_cerrar_sesion.pack()
+        btn_pedir_informe.pack()
+
+    def pedir_informe(self,user_info):
+        Usuario.solicitar_informe_usuario(user_info)
 
     def cerrar_sesion(self):
         # Eliminar todo el menu
@@ -336,6 +405,10 @@ class App:
         self.logout_from(self.ventana)
         exit()
 
+
+
+
+            
 if __name__ == "__main__":
     #ventana
     ventana = tk.Tk()

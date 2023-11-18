@@ -5,5 +5,19 @@
         "meditions": "dpIlpCzqeYOpdIxwBCPzBWgixxEwnmE6uxpMgRRw3/mpxlMnCEzNamyb1iNVKg==",
         "salt": "lVhwjFQQfV9u7PM1daFNzA==",
         "nonce": "pkf5yZzOCYFvmQMg"
+    },
+    {
+        "userid": "marcos33",
+        "pwd_token": "7o2wXq5oT7MzLP6GPJ0l9P6+ebT9qp3P5WgIsijdC1s=",
+        "meditions": "",
+        "salt": "Jj9WSs8jrIZfoQAd5aew2w==",
+        "nonce": "lIobVomEbPQVVIMX"
+    },
+    {
+        "userid": "marcos44",
+        "pwd_token": "iqlnSsMP2MeTFTpn5i9MZyNv9iUkA35D7dTssLHWEIs=",
+        "meditions": "4axWc30AL3rj01HLvRSF6xVayEr7w07M3KAMvhF3vMvyt17jSbxANDcdF+8sJhfxhtY5DNcXEdWAjg4GSBM=",
+        "salt": "52MNoFKkjT/YxzsgNenDyA==",
+        "nonce": "hFSgW6qiFfpZ8gve"
     }
 ]

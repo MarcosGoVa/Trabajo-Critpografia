@@ -2,16 +2,22 @@ import json
 import pickle
 import base64
 import os
+from sistema import Sistema
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import serialization
 from file_manager import FileManager
 from data.password import Password
 from data.username import Username
 from data.sugar import Sugar
 from data.date import Date
 
+Sistema.generar_guardar_claves("sistema_privada","sistema_publico")
 
 
 class Usuario:
@@ -166,8 +172,60 @@ class Usuario:
         print("-El usuario no está registrado")
         return -2
     
+
+    @classmethod
+    def solicitar_informe_usuario(cls,user_info):
+        clave_privada = Sistema.tomar_clave_privada("sistema_privada")
+        mensaje_a_firmar={
+            "usuario":user_info["userid"],
+            "meditions":user_info["meditions"]
+        }
+        mensaje_a_firmar_bytes = pickle.dumps(mensaje_a_firmar)   #mensaje en bytes
+        #mensaje_a_firmar_base64 = base64.b64encode(mensaje_a_firmar_bytes).decode("utf-8")
+        print(mensaje_a_firmar)
+        #sistema firma
+        signature = clave_privada.sign(
+            mensaje_a_firmar_bytes,
+            padding.PSS(
+            mgf=padding.MGF1(hashes.SHA256()),
+            salt_length=padding.PSS.MAX_LENGTH
+                ),
+                hashes.SHA256()
+        )
+        with open("firma"+user_info["userid"], 'wb') as file:
+            file.write(signature)
+
+        with open("mensaje"+user_info["userid"], 'wb') as file:
+            file.write(mensaje_a_firmar_bytes)
+
    
-    
+    @classmethod
+    def comprobar_informe_usuario(cls, firma, mensaje) -> bool:
+        
+        #obtengo la firma (del cliente)
+        #with open("firma", 'rb') as file:
+        #    firma = file.read()
+        #obtengo el mensaje a firmar
+        #with open("mensaje", 'rb') as file:
+        #    mensaje = mensaje.read()
+
+        #sistema verifica
+        clave_publica = Sistema.tomar_clave_publica("sistema_publico")
+        try: 
+            clave_publica.verify(
+                firma,
+                mensaje,
+                padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+                    ),
+                hashes.SHA256()
+            )
+            return True
+        except:
+            return False
+
+
     @classmethod
     def new_medition_app(cls, user_new_data,new_day,new_medition) -> None:
         
