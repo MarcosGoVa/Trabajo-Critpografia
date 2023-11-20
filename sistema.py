@@ -2,7 +2,7 @@ import os
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
-
+os.environ["system_password"] = "passwordveryverysecure"
 system_password = os.environ.get("system_password")
 print(system_password)
 

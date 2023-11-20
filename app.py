@@ -309,11 +309,12 @@ class App:
         self.entry_password.delete(0, tk.END)
         for widget in current_place.winfo_children():
             widget.destroy()
-        
-        if self.user_info:
-            Usuario.log_out_app(self.user_info)
-            self.user_info = None
-
+        try:
+            if self.user_info:
+                Usuario.log_out_app(self.user_info)
+                self.user_info = None
+        except:
+            pass
         current_place.destroy()
 
         self.frame_login.pack()

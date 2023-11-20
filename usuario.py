@@ -198,6 +198,9 @@ class Usuario:
         with open("mensaje"+user_info["userid"], 'wb') as file:
             file.write(mensaje_a_firmar_bytes)
 
+        # show current directory
+        print(os.getcwd())
+
    
     @classmethod
     def comprobar_informe_usuario(cls, firma, mensaje) -> bool:
