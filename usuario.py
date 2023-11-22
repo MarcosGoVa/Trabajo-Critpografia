@@ -18,6 +18,7 @@ from data.sugar import Sugar
 from data.date import Date
 
 Sistema.generar_guardar_claves("sistema_privada","sistema_publico")
+"Sistema.generar_certificate_request()"
 
 
 class Usuario:
@@ -201,19 +202,15 @@ class Usuario:
         # show current directory
         print(os.getcwd())
 
+
+
    
     @classmethod
     def comprobar_informe_usuario(cls, firma, mensaje) -> bool:
-        
-        #obtengo la firma (del cliente)
-        #with open("firma", 'rb') as file:
-        #    firma = file.read()
-        #obtengo el mensaje a firmar
-        #with open("mensaje", 'rb') as file:
-        #    mensaje = mensaje.read()
-
         #sistema verifica
-        clave_publica = Sistema.tomar_clave_publica("sistema_publico")
+        #Coger la clave pública del certificado de A
+        #clave_publica = Sistema.tomar_clave_publica("sistema_publico")
+        clave_publica = Sistema.verificar_certificados()
         try: 
             clave_publica.verify(
                 firma,
