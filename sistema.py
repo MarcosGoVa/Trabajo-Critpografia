@@ -112,6 +112,12 @@ class Sistema():
         )"""
         try:
             cert_AC1.public_key().verify(
+                cert_AC1.signature,
+                cert_AC1.tbs_certificate_bytes,
+                padding.PKCS1v15(),
+                cert_AC1.signature_hash_algorithm,
+            )
+            cert_AC1.public_key().verify(
                 cert_A.signature,
                 cert_A.tbs_certificate_bytes,
                 padding.PKCS1v15(),
